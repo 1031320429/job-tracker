@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>青城投递</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<video class="bg-video" autoplay loop muted playsinline>
+  <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260314_131748_f2ca2a28-fed7-44c8-b9a9-bd9acdd5ec31.mp4" type="video/mp4">
+</video>
+<div class="bg-overlay"></div>
+<div class="app">
+  <header class="topbar animate-fade-rise">
+    <div class="brand">
+      <span class="logo" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M2 21l21-9L2 3v7l15 2-15 2z" fill="currentColor"/>
+        </svg>
+      </span>
+      <div class="brand-text">
+        <h1>青城投递</h1>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <div class="topbar-stat" id="topbarStat">
+        <span class="topbar-stat-num" id="topbarStatNum">0</span>
+        <span class="topbar-stat-label">已投递</span>
+      </div>
+      <button id="agentBtn" class="btn">✨ AI 识别截图</button>
+      <button id="resumeManagerBtn" class="btn">简历管理</button>
+      <button id="addBtn" class="btn primary">+ 新增投递</button>
+    </div>
+  </header>
+
+  <section class="top-widgets animate-fade-rise-delay">
+    <div class="checkin-card" id="checkinCard">
+      <div class="checkin-header">
+        <h2 id="checkinMonthLabel"></h2>
+        <span class="checkin-summary" id="checkinSummary"></span>
+      </div>
+      <div class="checkin-grid" id="checkinGrid"></div>
+    </div>
+
+    <div class="note-card">
+      <div class="note-header">
+        <span>便签</span>
+        <span class="note-status" id="noteStatus"></span>
+      </div>
+      <div class="note-toolbar">
+        <button type="button" id="noteBoldBtn" class="note-tool-btn" title="加粗"><b>B</b></button>
+        <button type="button" id="noteItalicBtn" class="note-tool-btn" title="斜体"><i>I</i></button>
+        <button type="button" id="noteUnderlineBtn" class="note-tool-btn" title="下划线"><u>U</u></button>
+        <span class="note-toolbar-divider"></span>
+        <span class="note-swatches" id="noteSwatches">
+          <button type="button" class="note-swatch" data-color="#1b1b1f" style="background:#1b1b1f" title="黑"></button>
+          <button type="button" class="note-swatch" data-color="#dc2626" style="background:#dc2626" title="红"></button>
+          <button type="button" class="note-swatch" data-color="#2563eb" style="background:#2563eb" title="蓝"></button>
+          <button type="button" class="note-swatch" data-color="#eab308" style="background:#eab308" title="黄"></button>
+          <button type="button" class="note-swatch" data-color="#16a34a" style="background:#16a34a" title="绿"></button>
+        </span>
+        <input type="color" id="noteColorInput" class="note-color-input" title="自定义颜色" value="#6b4f1d">
+      </div>
+      <div id="noteText" class="note-text" contenteditable="true"
+           data-placeholder="写点什么吧，比如今天要投的公司、待跟进的面试..."></div>
+    </div>
+  </section>
+
+  <section class="stats animate-fade-rise-delay-2" id="stats"></section>
+
+  <section class="toolbar animate-fade-rise-delay-2">
+    <div class="search-box">
+      <input type="search" id="searchInput" placeholder="搜索公司 / 职位...">
+      <button id="searchBtn" class="search-btn" type="button" aria-label="搜索">🔍</button>
+    </div>
+    <div class="status-filters" id="statusFilters"></div>
+  </section>
+
+  <section class="table-wrap">
+    <table id="appTable">
+      <thead>
+        <tr>
+          <th>公司</th>
+          <th>职位</th>
+          <th>状态</th>
+          <th>投递日期</th>
+          <th>渠道</th>
+          <th>投递途径</th>
+          <th>简历版本</th>
+          <th>内推人</th>
+          <th>下一步时间</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="appTableBody"></tbody>
+    </table>
+    <p id="emptyState" class="empty-state" hidden>还没有记录，点右上角"新增投递"开始吧。</p>
+  </section>
+</div>
+
+<div id="modalOverlay" class="modal-overlay" hidden>
+  <div class="modal">
+    <h2 id="modalTitle">新增投递</h2>
+    <form id="appForm">
+      <input type="hidden" id="f_id">
+      <div class="form-grid">
+        <label>公司 *<input type="text" id="f_company" required></label>
+        <label>职位 *<input type="text" id="f_position" required></label>
+        <label>状态
+          <select id="f_status"></select>
+        </label>
+        <label>地点<input type="text" id="f_location" placeholder="如 Remote / 上海"></label>
+        <label>渠道<input type="text" id="f_source" placeholder="LinkedIn / 内推 / 官网..."></label>
+        <label>投递途径
+          <span class="channel-input-row">
+            <input type="text" id="f_apply_channel" placeholder="邮箱 / 官网链接 / 内推等">
+            <a id="f_apply_channel_link" href="#" target="_blank" hidden></a>
+          </span>
+        </label>
+        <label>简历版本
+          <span class="resume-select-row">
+            <select id="f_resume_id"></select>
+            <a id="f_resume_view" href="#" target="_blank" hidden>查看</a>
+          </span>
+        </label>
+        <label>内推人<input type="text" id="f_referral"></label>
+        <label>投递日期<input type="date" id="f_applied_date"></label>
+        <label>下一步时间<input type="date" id="f_next_step_date"></label>
+      </div>
+      <label class="notes-label">备注
+        <textarea id="f_notes" rows="3"></textarea>
+      </label>
+      <div class="modal-actions">
+        <button type="button" id="cancelBtn" class="btn">取消</button>
+        <button type="submit" class="btn primary">保存</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="resumeModalOverlay" class="modal-overlay" hidden>
+  <div class="modal">
+    <h2>简历管理</h2>
+    <ul id="resumeList" class="resume-list"></ul>
+
+    <form id="resumeForm">
+      <div class="form-grid">
+        <label>简历版本名称 *<input type="text" id="rf_name" required placeholder="如：前端实习-通用版"></label>
+        <label>PDF 文件<input type="file" id="rf_file" accept="application/pdf"></label>
+      </div>
+      <label class="notes-label">备注
+        <textarea id="rf_notes" rows="2" placeholder="如：偏向偏后端的岗位用这个版本"></textarea>
+      </label>
+      <div class="modal-actions">
+        <button type="button" id="resumeCloseBtn" class="btn">关闭</button>
+        <button type="submit" class="btn primary">添加简历</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="agentModalOverlay" class="modal-overlay" hidden>
+  <div class="modal">
+    <h2>AI 识别截图</h2>
+    <p class="agent-hint">上传一张职位截图，AI 会自动提取公司/职位/要求/投递方式，检查是否重复，推荐简历版本，并写入投递记录。</p>
+    <input type="file" id="agentFile" accept="image/*">
+    <div id="agentStatus" class="agent-status" hidden></div>
+    <div class="modal-actions">
+      <button type="button" id="agentCloseBtn" class="btn">关闭</button>
+      <button type="button" id="agentSubmitBtn" class="btn primary">开始识别</button>
+    </div>
+  </div>
+</div>
+
+<script src="/app.js"></script>
+</body>
+</html>
