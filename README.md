@@ -1,3 +1,40 @@
+# Job Tracker · 求职追踪器
+
+[中文说明在下方 / Chinese version below](#求职追踪器-1)
+
+A small web app for tracking internship and job applications, with an AI agent that turns a screenshot of a job posting into a structured record.
+
+<!-- TODO: add a screenshot of the app, e.g. ![Job Tracker screenshot](docs/screenshot.png) -->
+
+## Features
+
+- Track company, position, status (wishlist / applied / test / interview / offer / rejected / ghosted / dropped), channel, contact, resume version, dates and notes
+- Filter by status, search by company or position, and see summary stat cards
+- Resume version management: upload PDF resumes and link each application to the version you used
+- Basic-auth login, SQLite storage, Dockerfile and `fly.toml` for deployment to Fly.io
+
+## AI screenshot agent
+
+Upload a screenshot of a job posting and the agent in `agent.py` (built on the Anthropic SDK with tool calling) will:
+
+1. Extract the company, position, location, requirements and how to apply
+2. Check the tracker for an existing record from the same company to avoid duplicates
+3. Look through your resume versions and pick the best match, or leave it empty if none fits
+4. Write a short summary of the requirements and a personalized outreach email draft
+5. Create or update the record and reply with a short summary
+
+## Run locally
+
+```bash
+pip install -r requirements.txt   # only needed for the screenshot agent
+export ANTHROPIC_API_KEY=...      # only needed for the screenshot agent
+python3 app.py
+```
+
+Open http://127.0.0.1:8420. On first run a random password for the user `admin` is generated, printed once and saved to `data/auth.json`. You can also set `AUTH_USERNAME` and `AUTH_PASSWORD` as environment variables. Your data stays in `data/` and is git-ignored.
+
+---
+
 # 求职追踪器
 
 记录和分析远程实习（或任意岗位）投递情况的小工具。Python + SQLite；核心追踪功能只用标准库，截图自动识别功能需要 `anthropic` 依赖和 API Key。
